@@ -11,6 +11,7 @@ composeBom = "2025.01.01"
 navigation = "2.8.6"
 hilt-android = "2.54"
 hilt-navigation-compose = "1.2.0"
+kotlinx-coroutines-bom = "1.10.1"
 ksp = "2.0.21-1.0.27"
 
 [libraries]
@@ -34,6 +35,9 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt-android" }
 hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt-android" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-navigation-compose" }
+kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version.ref = "kotlinx-coroutines-bom" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 
 [plugins]

@@ -5,10 +5,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 interface FeatureBNavHelper {
-    fun startForResult(onResult: (res: String) -> Unit = {})
+    val result: StateFlow<String>
+
+    fun startForResult()
 }
 
 internal interface FeatureBNavHelperInternal {
@@ -33,11 +39,9 @@ private class FeatureBNavHelperImpl(
 ) : ViewModel(), FeatureBNavHelper,
     FeatureBNavHelperInternal {
 
-    override fun startForResult(onResult: (String) -> Unit) {
-        featureBResultHelper.startForResult(
-            onResult = onResult,
-        )
+    override val result: StateFlow<String> = featureBResultHelper.result
 
+    override fun startForResult() {
         navController.navigate(FEATURE_B_ROUTE) {
             launchSingleTop = true
         }
@@ -51,22 +55,14 @@ private class FeatureBNavHelperImpl(
 }
 
 @HiltViewModel
-internal class FeatureBResultHelper @Inject constructor() : ViewModel(), FeatureBNavHelper,
+internal class FeatureBResultHelper @Inject constructor() :
+    ViewModel(),
     FeatureBNavHelperInternal {
 
-    private var onResult: ((res: String) -> Unit)? = null
-
-    override fun startForResult(onResult: (String) -> Unit) {
-        this.onResult = onResult
-    }
+    private val _result: MutableStateFlow<String> = MutableStateFlow("")
+    val result: StateFlow<String> = _result.asStateFlow()
 
     override fun dismiss(res: String) {
-        onResult?.invoke(res)
-        onResult = null
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        onResult = null
+        _result.update { res }
     }
 }
