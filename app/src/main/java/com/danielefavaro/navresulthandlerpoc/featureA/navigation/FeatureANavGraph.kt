@@ -23,9 +23,7 @@ fun NavGraphBuilder.featureANavGraph(
 
         LaunchedEffect(Unit) {
             featureBNavHelper.getResult(entry = entry).let(viewModel::consumeArg)
-        }
 
-        LaunchedEffect(Unit) {
             when (state.event) {
                 FeatureAEvent.OnArgConsumed -> viewModel::onEventConsumed
                 FeatureAEvent.None -> Unit
