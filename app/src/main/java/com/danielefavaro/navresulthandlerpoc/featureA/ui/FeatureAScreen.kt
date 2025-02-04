@@ -17,7 +17,7 @@ import com.danielefavaro.navresulthandlerpoc.ui.theme.NavResultHandlerPoCTheme
 
 @Composable
 fun FeatureAScreen(
-    state: String,
+    arg: Int?,
     onCtaClick: () -> Unit
 ) {
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -30,7 +30,9 @@ fun FeatureAScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         ) {
             Text("Feature A", fontSize = 22.sp)
-            Text(state, fontSize = 18.sp)
+            arg?.let {
+                Text("Result: $arg", fontSize = 18.sp)
+            }
             Button(onClick = onCtaClick) {
                 Text("Start FeatureB for result")
             }
@@ -43,7 +45,7 @@ fun FeatureAScreen(
 private fun Preview() {
     NavResultHandlerPoCTheme {
         FeatureAScreen(
-            state = "Initial state",
+            arg = -1,
             onCtaClick = {}
         )
     }

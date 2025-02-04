@@ -6,6 +6,7 @@ import com.danielefavaro.navresulthandlerpoc.featureB.ui.FeatureBScreen
 import kotlin.random.Random
 
 internal const val FEATURE_B_ROUTE = "featureB"
+internal const val FEATURE_B_ARG_KEY = "result"
 
 fun NavGraphBuilder.featureBNavGraph(
     featureBNavHelper: FeatureBNavHelper,
@@ -13,10 +14,10 @@ fun NavGraphBuilder.featureBNavGraph(
     composable(FEATURE_B_ROUTE) {
         FeatureBScreen(
             onCtaClick = {
-                // emulate result behavior
                 featureBNavHelper as FeatureBNavHelperInternal
 
-                featureBNavHelper.dismiss("Result from Feature B: ${Random.nextInt()}")
+                featureBNavHelper.setResult(Random.nextInt())
+                featureBNavHelper.dismiss()
             }
         )
     }
