@@ -21,4 +21,9 @@ dependencyResolutionManagement {
 
 rootProject.name = "NavResultHandlerPoC"
 include(":app")
- 
+
+include(":module:featurea")
+include(":module:featureb")
+include(":module:featurex")
+include(":module:design")
+include(":module:data")

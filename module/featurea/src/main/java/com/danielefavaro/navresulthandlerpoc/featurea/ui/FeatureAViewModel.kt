@@ -1,4 +1,4 @@
-package com.danielefavaro.navresulthandlerpoc.featureA.ui
+package com.danielefavaro.navresulthandlerpoc.featurea.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 data class FeatureAState(
-    val arg: Int? = null,
+    val arg: String? = null,
     val event: FeatureAEvent = FeatureAEvent.None,
 )
 
@@ -30,7 +30,7 @@ class FeatureAViewModel @Inject constructor() : ViewModel() {
         initialValue = _state.value
     )
 
-    fun consumeArg(arg: Int?) {
+    fun consumeArg(arg: String?) {
         _state.update {
             it.copy(
                 arg = arg,

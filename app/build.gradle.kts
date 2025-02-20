@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -46,6 +47,13 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
 
     implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.serialization.json)
+
+    implementation(project(":module:featurea"))
+    implementation(project(":module:featureb"))
+    implementation(project(":module:featurex"))
+    implementation(project(":module:design"))
+    implementation(project(":module:data"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
