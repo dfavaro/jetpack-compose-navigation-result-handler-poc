@@ -6,13 +6,13 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 
 interface FeatureXNavController {
-    fun startForResult()
-    fun getResult(entry: NavBackStackEntry): String?
+    fun startForResult(resultKey: String = FEATURE_X_RESULT_KEY)
+    fun getResult(entry: NavBackStackEntry, key: String = FEATURE_X_RESULT_KEY): String?
 }
 
 internal interface FeatureXNavControllerInternal {
-    fun setResult(res: String)
-    fun dismiss()
+    fun setResult(key: String, res: String)
+    fun dismiss(arg: FeatureXArg)
 }
 
 @Composable
@@ -30,21 +30,21 @@ private class FeatureXNavControllerImpl(
 ) : ViewModel(), FeatureXNavController,
     FeatureXNavControllerInternal {
 
-    override fun startForResult() {
-        navController.navigate(FeatureX) {
+    override fun startForResult(resultKey: String) {
+        navController.navigate(FeatureXArg(resultKey)) {
             launchSingleTop = true
         }
     }
 
-    override fun getResult(entry: NavBackStackEntry): String? {
-        return entry.savedStateHandle.remove<String?>(FEATURE_X_RESULT_KEY)
+    override fun getResult(entry: NavBackStackEntry, key: String): String? {
+        return entry.savedStateHandle.remove(key)
     }
 
-    override fun setResult(res: String) {
-        navController.previousBackStackEntry?.savedStateHandle?.set(FEATURE_X_RESULT_KEY, res)
+    override fun setResult(key: String, res: String) {
+        navController.previousBackStackEntry?.savedStateHandle?.set(key, res)
     }
 
-    override fun dismiss() {
-        navController.popBackStack(FeatureX, inclusive = true)
+    override fun dismiss(arg: FeatureXArg) {
+        navController.popBackStack(arg, inclusive = true)
     }
 }
