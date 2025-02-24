@@ -1,5 +1,6 @@
 package com.danielefavaro.navresulthandlerpoc
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,26 +21,25 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.danielefavaro.navresulthandlerpoc.data.SharedPreferencesManager
 import com.danielefavaro.navresulthandlerpoc.featurea.navigation.FeatureACallbacks
 import com.danielefavaro.navresulthandlerpoc.featurea.navigation.FeatureANavController
 import com.danielefavaro.navresulthandlerpoc.featurea.navigation.featureANavGraph
 import com.danielefavaro.navresulthandlerpoc.featurea.navigation.rememberFeatureANavController
 import com.danielefavaro.navresulthandlerpoc.featureb.navigation.FeatureBCallbacks
 import com.danielefavaro.navresulthandlerpoc.featureb.navigation.FeatureBNavController
+import com.danielefavaro.navresulthandlerpoc.featureb.navigation.SubFeatureConnector
 import com.danielefavaro.navresulthandlerpoc.featureb.navigation.featureBNavGraph
 import com.danielefavaro.navresulthandlerpoc.featureb.navigation.rememberFeatureBNavController
 import com.danielefavaro.navresulthandlerpoc.featurex.navigation.FeatureXNavController
@@ -47,7 +47,6 @@ import com.danielefavaro.navresulthandlerpoc.featurex.navigation.featureXNavGrap
 import com.danielefavaro.navresulthandlerpoc.featurex.navigation.rememberFeatureXNavController
 import com.danielefavaro.navresulthandlerpoc.ui.theme.NavResultHandlerPoCTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.conflate
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -72,15 +71,6 @@ class MainActivity : ComponentActivity() {
 private fun App() {
     val navController = rememberNavController()
 
-    val context = LocalContext.current
-    val sharedPreferencesManager = remember {
-        SharedPreferencesManager(context = context)
-    }
-
-    val subFeatureResult = remember {
-        sharedPreferencesManager.observeKey(FEATURE_HOME_RESULT_KEY).conflate()
-    }
-
     val featureXNavController: FeatureXNavController =
         rememberFeatureXNavController(navController = navController)
 
@@ -90,8 +80,10 @@ private fun App() {
     val featureBNavController: FeatureBNavController =
         rememberFeatureBNavController(
             navController = navController,
-            startSubFeature = featureXNavController::startForResult,
-            subFeatureResult = subFeatureResult,
+            subFeatureConnector = object : SubFeatureConnector {
+                override val startSubFeature = featureXNavController::startForResult
+                override val getSubFeatureResult = featureXNavController::getResult
+            },
         )
 
     Column(
@@ -106,7 +98,6 @@ private fun App() {
             featureANavController = featureANavController,
             featureBNavController = featureBNavController,
             featureXNavController = featureXNavController,
-            sharedPreferencesManager = sharedPreferencesManager,
         )
 
         HorizontalDivider(modifier = Modifier.padding(16.dp))
@@ -118,6 +109,7 @@ private fun App() {
     }
 }
 
+
 @Composable
 private fun AppNavGraph(
     modifier: Modifier,
@@ -125,7 +117,6 @@ private fun AppNavGraph(
     featureANavController: FeatureANavController,
     featureBNavController: FeatureBNavController,
     featureXNavController: FeatureXNavController,
-    sharedPreferencesManager: SharedPreferencesManager,
 ) {
     Box(modifier = modifier) {
         NavHost(
@@ -133,16 +124,8 @@ private fun AppNavGraph(
             startDestination = Home,
         ) {
             composable<Home> { entry ->
-                LaunchedEffect(Unit) {
-                    featureXNavController.getResult(entry)?.let { result ->
-                        // Handle result from FeatureX
-                        println("FeatureX result: $result")
-                        sharedPreferencesManager.putString(
-                            FEATURE_HOME_RESULT_KEY,
-                            result.toString()
-                        )
-                    }
-                }
+
+                featureBNavController.ListenForSubFeaturesResults(entry)
 
                 Column(
                     Modifier.fillMaxSize(),
@@ -160,8 +143,12 @@ private fun AppNavGraph(
 
             featureANavGraph(
                 callbacks = object : FeatureACallbacks {
-                    override val startSubFeature = featureXNavController::startForResult
-                    override val getResult = featureXNavController::getResult
+                    override val startSubFeature = {
+                        featureXNavController.startForResult()
+                    }
+                    override val getResult: (entry: NavBackStackEntry) -> String? = {
+                        featureXNavController.getResult(it)
+                    }
                     override val onBackClick: () -> Unit = featureANavController::dismiss
                 },
             )
@@ -177,6 +164,7 @@ private fun AppNavGraph(
     }
 }
 
+@SuppressLint("RestrictedApi")
 @Composable
 private fun NavigationLog(
     modifier: Modifier,
